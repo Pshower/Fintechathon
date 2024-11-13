@@ -1,3 +1,4 @@
+
 optimizer: Adam 
 lr: 0.0001
 wd: 0.0001
@@ -13,16 +14,17 @@ mg: 1
 model:
   margin: 2
   nb_samp: 64000
-  first_conv: 128   # no. of filter coefficients 
+  first_conv: 128   # num of filter coefficients 
+  filts: 512
   in_channels: 1
+  #filts: [128, [128, 128], [128, 512], [512, 512]]
   win_size: 100
   enc_in: 100
-  c_out: 512
+  c_out: 2
   n_heads: 8
   d_model: 512
   d_ff: 512
   e_layers: 3
-  filts: [128, [128, 128], [128, 512], [512, 512]]
   nb_fc_node: 1024
   gru_node: 1024
   nb_gru_layer: 3

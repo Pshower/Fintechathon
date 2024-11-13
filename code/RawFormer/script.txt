@@ -1,20 +1,55 @@
 # training
 ## original
 python main.py --track=logical --loss=CCE  --lr=0.0001 --batch_size=32 \
---eval_output /home/gjw/rawnet2-antispoofing-main/results/ \
+--num_epochs 10 --eval_output /home/gjw/RawFormer/results/ \
 --database_path /home/gjw/Datasets/ASVSpoof2019/LA/ \
 --protocols_path /home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/
 
 
-
-
 # testing
 ## original
-python main.py --track=logical --loss=CCE --is_eval --eval --model_path='/home/gjw/rawnet2-antispoofing-main/models/model_logical_CCE_100_32_0.0001/epoch_60.pth' --eval_output='eval_CM_scores.txt' --database_path='/home/gjw/Datasets/ASVSpoof2019/LA/' --protocols_path='/home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/'
+### epoch 20
+python main.py --track=logical --loss=CCE --is_eval --eval \
+--model_path='/home/gjw/RawFormer/models/model_logical_CCE_100_32_0.0001/epoch_20.pth' \
+--eval_output='eval_CM_scores.txt' --database_path='/home/gjw/Datasets/ASVSpoof2019/LA/' \
+--protocols_path='/home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/' \
+--model_type RawNet2
+
+### epoch 60
+python main.py --track=logical --loss=CCE --is_eval --eval \
+--model_path='/home/gjw/RawFormer/models/model_logical_CCE_100_32_0.0001/epoch_60.pth' \
+--eval_output='eval_CM_scores.txt' --database_path='/home/gjw/Datasets/ASVSpoof2019/LA/' \
+--protocols_path='/home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/' \
+--model_type RawNet2
 
 # get evalutation
 ## original
 python tDCF_python/evaluate_tDCF_asvspoof19_eval_LA.py Eval 'eval_CM_scores.txt'
+
+
+
+########## RawFormer
+# training
+## original
+python main.py --track=logical --loss=CCE  --lr=0.0001 --batch_size=32 --model_type RawFormer \
+--num_epochs 20 --eval_output /home/gjw/RawFormer/results/ \
+--database_path /home/gjw/Datasets/ASVSpoof2019/LA/ \
+--protocols_path /home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/
+
+
+# testing
+## original
+python main.py --track=logical --loss=CCE --is_eval --eval \
+--model_path='/home/gjw/RawFormer/models/RawFormer_logical_CCE_20_32_0.0001/epoch_19.pth' \
+--eval_output='eval_CM_scores.txt' --database_path='/home/gjw/Datasets/ASVSpoof2019/LA/' \
+--protocols_path='/home/gjw/Datasets/ASVSpoof2019/LA/ASVspoof2019_LA_cm_protocols/' \
+--model_type RawFormer 
+ 
+
+# get evalutation
+## original
+python tDCF_python/evaluate_tDCF_asvspoof19_eval_LA.py Eval 'eval_CM_scores.txt'
+
 
 
 

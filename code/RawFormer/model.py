@@ -236,22 +236,29 @@ class RawNet(nn.Module):
         x=x.view(nb_samp,1,len_seq)
         
         x = self.Sinc_conv(x)    # Fixed sinc filters convolution # first error
+        # print("x.shape after sinc_conv:", x.shape)
+        # [21, 128, 63872]
         x = F.max_pool1d(torch.abs(x), 3)
         x = self.first_bn(x)
         x = self.selu(x)
+        # print("x.shape after selu:", x.shape)
+        # [32, 128, 21290]
         
         x0 = self.block0(x)
         y0 = self.avgpool(x0).view(x0.size(0), -1) # torch.Size([batch, filter])
         y0 = self.fc_attention0(y0)
         y0 = self.sig(y0).view(y0.size(0), y0.size(1), -1)  # torch.Size([batch, filter, 1])
         x = x0 * y0 + y0  # (batch, filter, time) x (batch, filter, 1)
-        
+        # print("x shape after block0:", x.shape)
+        # [32, 128, 7096]
 
         x1 = self.block1(x)
         y1 = self.avgpool(x1).view(x1.size(0), -1) # torch.Size([batch, filter])
         y1 = self.fc_attention1(y1)
         y1 = self.sig(y1).view(y1.size(0), y1.size(1), -1)  # torch.Size([batch, filter, 1])
         x = x1 * y1 + y1 # (batch, filter, time) x (batch, filter, 1)
+        # print("x shape after block1:", x.shape)
+        # [32, 128, 2365]
 
         x2 = self.block2(x)
         y2 = self.avgpool(x2).view(x2.size(0), -1) # torch.Size([batch, filter])
@@ -276,15 +283,23 @@ class RawNet(nn.Module):
         y5 = self.fc_attention5(y5)
         y5 = self.sig(y5).view(y5.size(0), y5.size(1), -1)  # torch.Size([batch, filter, 1])
         x = x5 * y5 + y5 # (batch, filter, time) x (batch, filter, 1)
+        # print("x shape after block5:", x.shape)
+        # [32, 512, 29]
 
         x = self.bn_before_gru(x)
         x = self.selu(x)
         x = x.permute(0, 2, 1)     #(batch, filt, time) >> (batch, time, filt)
+        # print("x shape before gru:", x.shape)
+        # [32, 29, 512]
         self.gru.flatten_parameters()
         x, _ = self.gru(x)
+        # print("x shape after gru:", x.shape)
+        # [32, 29, 1024]
         x = x[:,-1,:]
         x = self.fc1_gru(x)
         x = self.fc2_gru(x)
+        # print("output shape:", x.shape)
+        # [32, 2]
 
         if not is_test:
             output = x
@@ -397,3 +412,22 @@ class RawNet(nn.Module):
 
 
 
+if __name__ == '__main__':
+    # 输出模型信息
+    import os
+    import yaml
+    dir_yaml = os.path.splitext('model_config_RawNet2')[0] + '.yaml'
+    with open(dir_yaml, 'r') as f_yaml:
+        parser1 = yaml.load(f_yaml)
+        print(parser1)
+    
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu' 
+    device = 'cpu'
+    if bool(parser1['mg']):
+        model_1gpu = RawNet(parser1['model'], device)
+    
+    # print(model_1gpu)
+    
+    model_1gpu.to(device)
+    test_input = torch.rand((32, 64000)).to(device)
+    test_res = model_1gpu(test_input)

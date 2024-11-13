@@ -12,6 +12,7 @@ from torch import nn
 from model import RawNet
 from RawFormer import RawFormer
 # from tensorboardX import SummaryWriter
+from tqdm import tqdm
 
 
 def keras_lr_decay(step, decay = 0.0001):
@@ -69,7 +70,7 @@ def produce_evaluation_file(dataset, model, device, save_path):
     sys_id_list = []
     key_list = []
     score_list = []
-    for batch_x, batch_y, batch_meta in data_loader:
+    for batch_x, batch_y, batch_meta in tqdm(data_loader):
         batch_size = batch_x.size(0)
         num_total += batch_size
         batch_x = batch_x.to(device)
@@ -104,7 +105,7 @@ def train_epoch(data_loader, model, lr,optim, device):
     weight = torch.FloatTensor([1.0, 9.0]).to(device)
     criterion = nn.CrossEntropyLoss(weight=weight)
     
-    for batch_x, batch_y, batch_meta in train_loader: 
+    for batch_x, batch_y, batch_meta in tqdm(train_loader): 
         batch_size = batch_x.size(0)
         num_total += batch_size
         if ii == 0:
@@ -128,8 +129,6 @@ def train_epoch(data_loader, model, lr,optim, device):
     running_loss /= num_total
     train_accuracy = (num_correct/num_total)*100
     return running_loss, train_accuracy
-
-
 
 
 if __name__ == '__main__':
@@ -165,6 +164,7 @@ if __name__ == '__main__':
             print(parser1)
     elif args.model_type == 'RawFormer':
         # our model
+        print("use RawFormer!")
         dir_yaml = os.path.splitext('model_config_RawFormer')[0] + '.yaml'
         with open(dir_yaml, 'r') as f_yaml:
             parser1 = yaml.load(f_yaml)
@@ -182,8 +182,12 @@ if __name__ == '__main__':
     track = args.track
     
     #Creat Model
-    model_tag = 'model_{}_{}_{}_{}_{}'.format(
-        track, args.loss, args.num_epochs, args.batch_size, args.lr)
+    if args.model_type == 'RawFormer':
+        model_tag = 'RawFormer_{}_{}_{}_{}_{}'.format(
+            track, args.loss, args.num_epochs, args.batch_size, args.lr)
+    else:
+        model_tag = 'model_{}_{}_{}_{}_{}'.format(
+            track, args.loss, args.num_epochs, args.batch_size, args.lr)
     if args.comment:
         model_tag = model_tag + '_{}'.format(args.comment)
     model_save_path = os.path.join('models', model_tag)
@@ -225,14 +229,17 @@ if __name__ == '__main__':
 
     elif args.model_type == 'RawFormer':
         # our model
+        print("use Rawformer!")
         if bool(parser1['mg']):
-                model_1gpu = RawNet(parser1['model'], device)
+                model_1gpu = RawFormer(parser1['model'], device)
                 nb_params = sum([param.view(-1).size()[0] for param in model_1gpu.parameters()])
                 model =(model_1gpu).to(device)
+                print("nb_params:", nb_params)
         else:
             print("model = RawFormer")
-            model = RawNet(parser1['model'], device).to(device)
+            model = RawFormer(parser1['model'], device).to(device)
             nb_params = sum([param.view(-1).size()[0] for param in model.parameters()])
+            print("nb_params:", nb_params)
 
 
     # Adam optimizer
@@ -246,6 +253,7 @@ if __name__ == '__main__':
     
 
     if args.eval:
+        print("start eval!")
         produce_evaluation_file(dev_set, model, device, args.eval_output)
         sys.exit(0)
 
