@@ -12,3 +12,7 @@
 
 本文部分代码参考：
 https://github.com/musikalkemist/DeepLearningForAudioWithPython/tree/master
+
+联系方式：
+BeihangGjw2403@buaa.edu.cn
+xuzhenyu@pku.edu.cn
