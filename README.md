@@ -10,8 +10,9 @@ code/MFCCs2CV/KYC_Integrate_App.ipynb是最终前端展示系统
 
 code/MFCCs2CV/中"3"开头文件表示模型训练和测试过程
 
-训练测试结果如下：
-![结果.png](ref\pic\结果.png)
+训练测试结果如下：  
+![结果.png](/ref/pic/结果.png)
+  
   
 本文部分代码参考：
 https://github.com/musikalkemist/DeepLearningForAudioWithPython/tree/master
